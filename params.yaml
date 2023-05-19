@@ -1,0 +1,5 @@
+collect:
+  data-inicio-treino: '2019-01-01'
+  data-fim-treino: '2019-12-31'
+  data-inicio-validacao-teste: '2020-01-01'
+  data-fim-validacao-teste: '2022-12-31'
