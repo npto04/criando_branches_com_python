@@ -2,9 +2,10 @@ import datetime
 import subprocess
 import yaml
 import logging
+from pathlib import Path
 
 # Configurações
-params_file = "params.yml"
+params_file = "params.yaml"
 start_date = datetime.datetime.strptime('2019-01-01', r'%Y-%m-%d')
 num_years = 12
 
@@ -27,18 +28,25 @@ def create_git_branch(params_file: str, start_date: datetime.datetime, end_date)
 
 def update_params_file(params_file: str, start_date: datetime.datetime, end_date: datetime.datetime):
     logger.info(f"Updating {params_file} with {start_date} and {end_date}")
-    with open(params_file, 'r') as file:
+    if Path(params_file).is_file():
+        logger.info(f"{params_file} found")
+    else:
+        logger.error(f"{Path(params_file)} not found")
+        raise FileNotFoundError(f"{params_file} not found")
+    with open(Path(params_file).resolve(), 'r') as file:
         params = yaml.safe_load(file)
 
     params['collect']['data-inicio-treino'] = start_date.strftime(r'%Y-%m-%d')
     params['collect']['data-fim-treino'] = end_date.strftime(r'%Y-%m-%d')
 
-    with open(params_file, 'w') as file:
+    with open(Path(params_file).resolve(), 'w') as file:
         yaml.dump(params, file)
+    logger.info(f"{params_file} updated")
 
 def generate_git_branches(params_file: str, start_date: datetime.datetime, num_years: int):
     logger.info(f"Generating {num_years} branches")
     for _ in range(num_years):
+        subprocess.run(["git", "checkout", "master"])
         create_git_branch(params_file, start_date, start_date.replace(year=start_date.year-1) - datetime.timedelta(days=1))
         logger.info(f"Branch {start_date.year} created")
         start_date = start_date.replace(year=start_date.year-1)
