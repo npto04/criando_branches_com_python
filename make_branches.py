@@ -160,7 +160,7 @@ def generate_git_branches(params_file: str, num_years: int) -> None:
     end_date = get_date("data-fim-treino")
     logger.info(f"Getting end date for branch {end_date.year}")
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=3) as executor:
         future_to_branches = {
             executor.submit(create_git_branch, params_file, start, end): (start, end)
             for _, (start, end) in enumerate(
