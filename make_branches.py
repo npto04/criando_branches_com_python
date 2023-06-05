@@ -160,7 +160,7 @@ def generate_git_branches(params_file: str, num_years: int) -> None:
     end_date = get_date("data-fim-treino")
     logger.info(f"Getting end date for branch {end_date.year}")
 
-    with ThreadPoolExecutor() as executor:
+    with ThreadPoolExecutor(max_workers=3) as executor:
         future_to_branches = {
             executor.submit(create_git_branch, params_file, start, end): (start, end)
             for _, (start, end) in enumerate(
@@ -196,4 +196,11 @@ def generate_git_branches(params_file: str, num_years: int) -> None:
 # num_years is the number of years to simulate
 if __name__ == "__main__":
     logger.info("Workdir: %s", Path.cwd())
+    main_branch = (
+        subprocess.run(["git", "branch", "--show-current"], capture_output=True)
+        .stdout.decode("utf-8")
+        .strip()
+    )
     generate_git_branches(params_file, num_years)
+
+    subprocess.run(["git", "checkout", main_branch])
